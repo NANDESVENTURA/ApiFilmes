@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/films")
@@ -23,11 +24,14 @@ public class FilmController {
     @PostMapping
     @Transactional
     public ResponseEntity register(@RequestBody @Valid DataRecordFilm data, UriComponentsBuilder uriBuilder) throws NoSuchAlgorithmException {
-        var film = new Film(data);
-        repository.save(film);
+        List<Film> filmsExists = repository.findByName(data.name());
+        if(filmsExists.size() > 0){ return null;}
+            var film = new Film(data);
+            repository.save(film);
 
-        var uri = uriBuilder.path("/films/{id}").buildAndExpand(film.getId()).toUri();
-        return ResponseEntity.created(uri).body(new DataDetailingFilm(film));
+            var uri = uriBuilder.path("/films/{id}").buildAndExpand(film.getId()).toUri();
+            return ResponseEntity.created(uri).body(new DataDetailingFilm(film));
+
     }
 
     @GetMapping()
@@ -50,15 +54,15 @@ public class FilmController {
         return ResponseEntity.ok(new DataDetailingFilm(film));
     }
 
-//    @PutMapping
-//    @RequestMapping("/watching")
-//    @Transactional
-//    public ResponseEntity update (@RequestBody @Valid DataUpdateWatchingFilm data) {
-//        var film =  repository.getReferenceById(data.id());
-//        film.updateWatchingData(data);
-//
-//        return ResponseEntity.ok(new DataDetailingFilm(film));
-    // }
+    @PutMapping
+    @RequestMapping("/watching")
+    @Transactional
+    public ResponseEntity update (@RequestBody @Valid DataUpdateWatchingFilm data) {
+        var film =  repository.getReferenceById(data.id());
+        film.updateWatchingData(data);
+
+        return ResponseEntity.ok(new DataDetailingFilm(film));
+     }
 
     @DeleteMapping("/{id}")
     @Transactional

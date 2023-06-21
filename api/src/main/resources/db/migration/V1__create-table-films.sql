@@ -4,7 +4,7 @@ create table films(
                         name varchar(100) not null,
                         platform varchar(100) not null,
                         gender varchar(100) not null,
-                        note varchar(100) not null,
+                        note int not null,
                         watched tinyint,
 
 

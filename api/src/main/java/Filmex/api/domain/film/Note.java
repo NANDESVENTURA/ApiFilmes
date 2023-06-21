@@ -3,7 +3,7 @@ package Filmex.api.domain.film;
 public enum Note {
     ZERO,
     UM,
-    DOI,
+    DOIS,
     TRES,
     QUATRO,
     CINCO;
