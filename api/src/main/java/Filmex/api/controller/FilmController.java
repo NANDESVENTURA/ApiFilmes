@@ -11,8 +11,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.swing.*;
 import java.security.NoSuchAlgorithmException;
+import java.sql.ResultSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/films")
@@ -24,49 +28,101 @@ public class FilmController {
     @PostMapping
     @Transactional
     public ResponseEntity register(@RequestBody @Valid DataRecordFilm data, UriComponentsBuilder uriBuilder) throws NoSuchAlgorithmException {
-        List<Film> filmsExists = repository.findByName(data.name());
-        if(filmsExists.size() > 0){ return null;}
+        try {
+            Film filmsExists = repository.findByName(data.name());
+            if (filmsExists != null) {
+                HashMap<String, String> ErrorMessage = new HashMap<>();
+                ErrorMessage.put("ErrorMessage", "Film already registered");
+                return ResponseEntity.badRequest().body(ErrorMessage);
+            }
             var film = new Film(data);
             repository.save(film);
 
             var uri = uriBuilder.path("/films/{id}").buildAndExpand(film.getId()).toUri();
             return ResponseEntity.created(uri).body(new DataDetailingFilm(film));
-
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
     @GetMapping()
-    public Page<DataListFilms>list(@PageableDefault(size = 10, sort = {"name"})Pageable pagination) {
-        return repository.findAll(pagination).map(DataListFilms::new);
+    public Page<DataListFilms> list(@PageableDefault(size = 10, sort = {"name"}) Pageable pagination) {
+        try {
+            return repository.findAll(pagination).map(DataListFilms::new);
+        } catch (Exception error) {
+            JOptionPane.showMessageDialog(null, "Internal Error - Could not complete", "Internal Error", JOptionPane.INFORMATION_MESSAGE);
+        }
+        return null;
     }
 
+
     @GetMapping("/{id}")
-    public ResponseEntity detailing(@PathVariable Long id) {
-        var film = repository.getReferenceById(id);
-        return ResponseEntity.ok(new DataListFilms(film));
+    public ResponseEntity detail(@PathVariable Long id) {
+        try {
+            Optional<Film> filmsExists = repository.findById(id);
+            if (filmsExists.isEmpty()) {
+                HashMap<String, String> ErrorMessage = new HashMap<>();
+                ErrorMessage.put("ErrorMessage", "Film not found");
+                return ResponseEntity.badRequest().body(ErrorMessage);
+            }
+            var film = repository.getReferenceById(id);
+            return ResponseEntity.ok(new DataDetailingFilm(film));
+        } catch (Exception error) {
+            JOptionPane.showMessageDialog(null, "Internal Error - Could not complete", "Internal Error", JOptionPane.INFORMATION_MESSAGE);
+        }
+        return null;
     }
+
 
     @PutMapping
     @Transactional
-    public ResponseEntity update (@RequestBody @Valid DataUpdateFilm data) {
-        var film =  repository.getReferenceById(data.id());
-        film.updateData(data);
+    public ResponseEntity update(@RequestBody @Valid DataUpdateFilm data) {
+        try {
+            Film filmsExists = repository.findByName(data.name());
+            if (filmsExists != null) {
+                var film = repository.getReferenceById(data.id());
+                film.updateData(data);
 
-        return ResponseEntity.ok(new DataDetailingFilm(film));
+                return ResponseEntity.ok(new DataDetailingFilm(film));
+            }
+        } catch (Exception error) {
+            JOptionPane.showMessageDialog(null, "Internal Error - Could not complete", "Internal Error", JOptionPane.INFORMATION_MESSAGE);
+        }
+        return null;
     }
 
     @PutMapping
     @RequestMapping("/watching")
     @Transactional
-    public ResponseEntity update (@RequestBody @Valid DataUpdateWatchingFilm data) {
-        var film =  repository.getReferenceById(data.id());
-        film.updateWatchingData(data);
+    public ResponseEntity update(@RequestBody @Valid DataUpdateWatchingFilm data) {
+        try {
+            var film = repository.getReferenceById(data.id());
+            film.updateWatchingData(data);
 
-        return ResponseEntity.ok(new DataDetailingFilm(film));
-     }
+            return ResponseEntity.ok(new DataDetailingFilm(film));
+        } catch (Exception error) {
+            JOptionPane.showMessageDialog(null, "Internal Error - Could not complete", "Internal Error", JOptionPane.INFORMATION_MESSAGE);
+        }
+        return null;
+    }
 
     @DeleteMapping("/{id}")
     @Transactional
-    public void delete(@PathVariable Long id) {
-        repository.deleteById(id);
+    public ResponseEntity delete(@PathVariable Long id) {
+        try {
+            Optional<Film> filmsExists = repository.findById(id);
+            if (filmsExists.isEmpty()) {
+                HashMap<String, String> ErrorMessage = new HashMap<>();
+                ErrorMessage.put("ErrorMessage", "Film not found");
+                return ResponseEntity.badRequest().body(ErrorMessage);
+            }
+            HashMap<String, String> DeleteMessage = new HashMap<>();
+            DeleteMessage.put("DeleteMessage", "Successfully deleted movie");
+            repository.deleteById(id);
+            return ResponseEntity.ok().body(DeleteMessage);
+        } catch (Exception error) {
+            JOptionPane.showMessageDialog(null, "Internal Error - Could not complete", "Internal Error", JOptionPane.INFORMATION_MESSAGE);
+        }
+        return null;
     }
 }

@@ -1,10 +1,10 @@
 package Filmex.api.domain.film;
 
-import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
+import java.util.Optional;
 
 public interface FilmRepository extends JpaRepository<Film, Long> {
-    List<Film> findByName(String name);
+    Film findByName(String name);
+    Optional<Film> findById(Long id);
 }
