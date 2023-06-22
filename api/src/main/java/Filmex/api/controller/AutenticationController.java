@@ -4,7 +4,6 @@ import Filmex.api.domain.user.DataAuthentication;
 import Filmex.api.domain.user.User;
 import Filmex.api.infra.security.DataTokenJWT;
 import Filmex.api.infra.security.TokenService;
-import Filmex.api.utils.SecurityUtils;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -29,8 +28,7 @@ public class AutenticationController {
 
     @PostMapping
     public ResponseEntity login(@RequestBody @Valid DataAuthentication data) throws NoSuchAlgorithmException {
-//        String password = new SecurityUtils().crypt(data.password());
-        var authenticationToken = new UsernamePasswordAuthenticationToken(data.name(), data.password());
+        var authenticationToken = new UsernamePasswordAuthenticationToken(data.email(), data.password());
         System.out.println(authenticationToken);
         var authentication = manager.authenticate(authenticationToken);
 

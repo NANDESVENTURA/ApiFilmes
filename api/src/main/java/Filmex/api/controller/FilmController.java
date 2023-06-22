@@ -13,9 +13,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.swing.*;
 import java.security.NoSuchAlgorithmException;
-import java.sql.ResultSet;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Optional;
 
 @RestController

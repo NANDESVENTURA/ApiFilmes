@@ -29,6 +29,7 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
+    private String email;
     private String password;
 
     @Override
@@ -43,6 +44,9 @@ public class User implements UserDetails {
     public String getUsername() {
         return name;
     }
+
+
+    public String getEmail() {return email;}
 
     @Override
     public boolean isAccountNonExpired() {
@@ -66,6 +70,7 @@ public class User implements UserDetails {
     public User(DataCreateUser data) throws NoSuchAlgorithmException {
         var encoder = new BCryptPasswordEncoder();
         this.name = data.name();
+        this.email = data.email();
         this.password = encoder.encode(data.password());
     }
 

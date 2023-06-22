@@ -30,10 +30,10 @@ public class UserController {
     @Transactional
     public ResponseEntity createUser(@RequestBody @Valid DataCreateUser data, UriComponentsBuilder uriBuilder) throws NoSuchAlgorithmException {
         try {
-            UserDetails userExists = repository.findByName(data.name());
+            UserDetails userExists = repository.findByEmail(data.email());
             if (userExists != null) {
                 HashMap<String, String> ErrorMessage = new HashMap<>();
-                ErrorMessage.put("ErrorMessage", "Username already registered");
+                ErrorMessage.put("ErrorMessage", "Email already registered");
                 return ResponseEntity.badRequest().body(ErrorMessage);
             }
             var user = new User(data);
