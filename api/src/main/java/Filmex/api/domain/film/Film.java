@@ -1,5 +1,7 @@
 package Filmex.api.domain.film;
 
+import Filmex.api.domain.user.DataDetailingUser;
+import Filmex.api.domain.user.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,6 +22,7 @@ public class Film {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private Long user_id;
     private String name;
     private Boolean watched;
 
@@ -33,8 +36,9 @@ public class Film {
     @Enumerated(EnumType.ORDINAL)
     private Note note;
 
-    public Film(DataRecordFilm data) {
+    public Film(DataRecordFilm data, User logged) {
         this.name = data.name();
+        this.user_id = logged.getId();
         this.platform = data.platform();
         this.gender = data.gender();
         this.watched = false;
